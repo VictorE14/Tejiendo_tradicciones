@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+  <title>Tejiendo Tradiciones · Catálogo Digital</title>
+  <!-- Google Fonts: serif para títulos, sans-serif para cuerpo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Navbar Sticky -->
+    <nav class="navbar">
+      <div class="container">
+        <div class="logo" id="navLogo">🧶 Tejiendo Tradiciones</div>
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Buscar productos..." aria-label="Buscar productos">
+          <button class="search-btn" onclick="buscarProductos()">🔍</button>
+          <div id="searchSuggestions" class="search-suggestions" role="listbox"></div>
+        </div>
+        <div class="icons">
+          <a href="admin.html" class="icon-btn" title="Panel de Administración" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; font-size:1.15rem; color:var(--vino);" aria-label="Ir al panel de administración">
+            ⚙️
+          </a>
+          <button class="icon-btn" id="openCartBtn" aria-label="Abrir carrito de compras">
+            🛒 <span id="navCartCount">0</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <h1>Artesanías de Tejido a Crochet</h1>
+        <div class="sub">Catálogo Digital — Tejiendo Tradiciones</div>
+        <div class="frases">
+          <span>“Tradición que se teje, identidad que permanece”</span>
+          <span>“Hecho a mano con amor, creado para perdurar”</span>
+          <span>“Mujeres que tejen cultura, mujeres que transforman”</span>
+        </div>
+        <button class="btn-primary"
+          onclick="document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})">Ver Catálogo</button>
+      </div>
+    </section>
+
+    <!-- Presentación -->
+    <section class="container presentacion">
+      <div class="texto">
+        <h2>Tejiendo Tradiciones</h2>
+        <p>Este catálogo reúne el trabajo artesanal de mujeres que, a través del tejido a crochet, mantienen viva una
+          tradición que forma parte de nuestra cultura y nuestra identidad. En sus páginas encontrarás prendas, aretes y
+          cenefas tejidas a crochet, elaboradas con dedicación, creatividad y cuidado artesanal. Las
+          cenefas están destinadas a complementar las orillas del justán del hipil, aportando diferentes diseños y
+          detalles que realzan la belleza de la vestimenta tradicional.</p>
+      </div>
+      <div class="img-deco">
+        <div class="img-deco-grid">
+          <img src="images/articulo/articulo5.png" alt="Aretes tejido a crochet">
+          <img src="images/articulo/articulo13.png" alt="Blusa crochet">
+          <img src="images/articulo/articulo18.png" alt="Cenefa crochet">
+        </div>
+        <span>tejido artesanal</span>
+      </div>
+    </section>
+
+    <!-- Catálogo con filtros -->
+    <section id="catalogo" class="container">
+      <div class="filtros-sticky">
+        <div class="filtros-container">
+          <div class="filtros-botones" id="filtroCategoria">
+            <button class="active" data-cat="Todos">Todos</button>
+            <button data-cat="Aretes">Aretes</button>
+            <button data-cat="Blusa">Blusas y Tops</button>
+            <button data-cat="Cenefa">Cenefas</button>
+          </div>
+          <select id="filtroOrdenamiento" class="filtros-select" aria-label="Ordenar productos">
+            <option value="nombre">Ordenar: Nombre</option>
+            <option value="precio-asc">Precio: Menor a Mayor</option>
+            <option value="precio-desc">Precio: Mayor a Menor</option>
+          </select>
+          <button class="filtro-limpiar" onclick="limpiarFiltros()">⟳ Limpiar filtros</button>
+        </div>
+      </div>
+      <div id="resultadosInfo" style="padding:0.5rem 0; color:#666; font-size:0.9rem; display:none;"></div>
+      <div id="sinResultados" class="cart-vacio" style="display:none; margin: 3rem 0;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">😕</div>
+        <p>No se encontraron productos con los filtros seleccionados.</p>
+      </div>
+      <div class="grid-productos" id="productosGrid"></div>
+    </section>
+
+    <!-- Tradición Artesanal -->
+    <section class="container" style="margin-top: 3rem; margin-bottom: 2rem;">
+      <div style="background: #faf6f0; border: 1px solid #e5ddd4; border-radius: 12px; padding: 2rem; text-align: center;">
+        <h2 style="color: var(--vino); font-size: 1.8rem; margin-bottom: 0.5rem;">Tradición y Creatividad en Crochet</h2>
+        <p style="font-style: italic; color: var(--oliva); max-width: 700px; margin: 0 auto; line-height: 1.6;">“Cada puntada cuenta una historia; cada pieza lleva consigo la dedicación, el cuidado y la identidad viva de nuestras tradiciones culturales.”</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="logo">Tejiendo Tradiciones</div>
+        <div>📧 <a href="mailto:tejiendotradiciones6@gmail.com">tejiendotradiciones6@gmail.com</a> · 📞 <a
+            href="tel:+529831066117">+52 983 106 6117</a></div>
+        <div class="leyenda">“Hecho a mano con amor, creado para perdurar.”</div>
+        <div style="margin-top: 0.8rem; font-size: 0.78rem; opacity: 0.75;">
+          <a href="admin.html" style="color: inherit; text-decoration: none;">🔒 Panel Administrativo</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Carrito Sidebar -->
+    <div id="cartSidebar" class="cart-sidebar">
+      <button class="cart-close" id="closeCart">✕</button>
+      <h2>🛒 Carrito de Compras</h2>
+      <div id="cartEmpty" class="cart-vacio">Tu carrito está vacío</div>
+      <div id="cartItems"></div>
+      <div class="cart-total" id="cartTotal" style="display:none;">Total: $0 MXN</div>
+      <div class="cliente-form" id="clienteForm">
+        <h3>Datos para tu pedido</h3>
+        <label for="clienteNombre">Nombre completo</label>
+        <input type="text" id="clienteNombre" placeholder="Tu nombre" autocomplete="name">
+        <label for="clienteTelefono">Teléfono</label>
+        <input type="tel" id="clienteTelefono" placeholder="10 dígitos" autocomplete="tel">
+        <label for="clienteDireccion">Dirección de entrega</label>
+        <textarea id="clienteDireccion" placeholder="Calle, número, colonia, ciudad y código postal" rows="3"
+          autocomplete="street-address"></textarea>
+      </div>
+      <div class="cart-msg">Al valorar y adquirir estas creaciones, contribuimos a fortalecer la identidad cultural,
+        preservar los saberes artesanales y reconocer el valor del tejido tradicional.</div>
+      <div class="cart-botones">
+        <button class="btn-primary" style="width:100%;" id="finalizarBtn" onclick="finalizarWhatsApp()"
+          style="display:none;">📱 Finalizar por WhatsApp</button>
+        <button class="btn-vaciar-carrito" id="vaciarBtn" onclick="vaciarCarrito()" style="display:none;">Vaciar
+          carrito</button>
+      </div>
+    </div>
+
+    <!-- Modal Detalle de Producto -->
+    <div id="modalDetalle" class="modal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="cerrarModal()">✕</button>
+        <div class="modal-header">
+          <div class="modal-img" id="modalImg">🎨</div>
+          <div class="modal-info">
+            <h2 id="modalNombre"></h2>
+            <div class="codigo-precio" id="modalPrecio"></div>
+            <div id="modalCategoria" style="margin: 0.5rem 0; font-size:0.8rem; color:#666;"></div>
+          </div>
+        </div>
+        <div style="border-top: 1px solid #e3d9cc; padding-top: 1rem;">
+          <p id="modalDesc" style="font-size: 0.95rem; line-height: 1.6; color: #2C2C2C;"></p>
+          <div id="modalMedidas" style="font-size: 0.85rem; color: #666; margin: 0.8rem 0;"></div>
+          <div class="modal-botones">
+            <button class="btn-primary" onclick="agregarDelModal()" style="flex:1;">Agregar al carrito</button>
+            <button class="btn-outline-vino" onclick="compartirProducto()" style="flex:1;">📤 Compartir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Supabase SDK y Cliente -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="app.js" defer></script>
+</body>
+
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin · Tejiendo Tradiciones</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-page">
+  <!-- Pantalla de Login -->
+  <section id="adminLoginScreen" class="admin-login-screen">
+    <div class="admin-login-card">
+      <div class="admin-login-brand">
+        <img src="images/logo/logo colectivo.png" alt="Logo Tejiendo Tradiciones">
+        <h2>Tejiendo Tradiciones</h2>
+        <p>Panel de Administración y Control de Stock</p>
+      </div>
+
+      <!-- Pestañas de acceso -->
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="tabLoginBtn">Iniciar sesión</button>
+        <button type="button" class="auth-tab" id="tabRegisterBtn">Registrarse</button>
+      </div>
+
+      <!-- Formulario Login -->
+      <form id="loginForm" class="admin-login-form">
+        <div id="loginError" class="admin-login-error" hidden></div>
+        <div class="form-group">
+          <label for="loginEmail">Correo o Usuario</label>
+          <input type="text" id="loginEmail" placeholder="admin@tejiendo.com" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="admin-button full-width" id="loginSubmitBtn">Ingresar al panel</button>
+      </form>
+
+      <!-- Formulario Registro -->
+      <form id="registerForm" class="admin-login-form" hidden>
+        <div id="registerMsg" class="admin-login-error" hidden></div>
+        <div class="form-group">
+          <label for="regName">Nombre completo</label>
+          <input type="text" id="regName" placeholder="Tu nombre" required autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Correo electrónico</label>
+          <input type="email" id="regEmail" placeholder="nuevo.admin@tejiendo.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="regPassword">Contraseña</label>
+          <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" minlength="6" required autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label for="regConfirmPassword">Confirmar contraseña</label>
+          <input type="password" id="regConfirmPassword" placeholder="Repite tu contraseña" minlength="6" required autocomplete="new-password">
+        </div>
+        <button type="submit" class="admin-button full-width" id="registerSubmitBtn">Crear cuenta de admin</button>
+      </form>
+
+      <div class="admin-login-footer">
+        <a class="admin-link" href="index.html">← Volver a la tienda</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Panel de Control Principal (Protegido por login) -->
+  <main class="admin-shell" id="adminDashboard" hidden>
+    <header class="admin-topbar">
+      <div class="admin-brand">
+        <img src="images/logo/logo colectivo.png" alt="Logo Tejiendo Tradiciones">
+        <span>Tejiendo Tradiciones · Admin</span>
+      </div>
+      <div class="admin-topbar-actions">
+        <a class="admin-link" href="index.html">Ver tienda</a>
+        <button class="admin-button secondary small" id="adminLogoutBtn" type="button">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <section class="admin-heading">
+      <span class="admin-kicker">Panel de administración</span>
+      <h1>Control del Inventario</h1>
+      <p>Administración de productos, disponibilidad y existencias.</p>
+    </section>
+
+    <section class="admin-stats" aria-label="Resumen del inventario">
+      <div class="admin-stat"><span>Productos</span><strong id="totalProducts">0</strong></div>
+      <div class="admin-stat"><span>Disponibles</span><strong id="availableProducts">0</strong></div>
+      <div class="admin-stat"><span>Unidades en stock</span><strong id="totalStock">0</strong></div>
+      <div class="admin-stat alert"><span>Por reponer</span><strong id="lowStock">0</strong></div>
+    </section>
+
+    <section class="admin-toolbar" aria-label="Herramientas de productos">
+      <input class="admin-search" id="productSearch" type="search" placeholder="Buscar por nombre o código...">
+      <select id="categoryFilter" aria-label="Filtrar por categoría">
+        <option value="Todos">Todas las categorías</option>
+        <option>Aretes</option>
+        <option>Blusa</option>
+        <option>Cenefa</option>
+      </select>
+      <button class="admin-button" id="newProduct" type="button">＋ Nuevo producto</button>
+    </section>
+
+    <form class="admin-card admin-form" id="productForm" hidden>
+      <div class="admin-form-title">
+        <h2 id="formTitle">Nuevo producto</h2>
+        <button class="admin-button secondary" id="cancelForm" type="button">Cancelar</button>
+      </div>
+      <input id="editId" type="hidden">
+      <label>Nombre<input id="name" required></label>
+      <label>Código<input id="code" placeholder="AR-013" required></label>
+      <label>Categoría
+        <select id="category">
+          <option>Aretes</option>
+          <option>Blusa</option>
+          <option>Cenefa</option>
+        </select>
+      </label>
+      <label>Precio (MXN)<input id="price" type="number" min="0" required></label>
+      <label>Stock inicial<input id="stock" type="number" min="0" required></label>
+      <div style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.35rem;">
+        <label for="imageFile" style="font-weight: 600; font-size: 0.78rem; color: #5f574f;">Foto del producto (Seleccionar imagen)</label>
+        <input id="imageFile" type="file" accept="image/*">
+        <input id="image" type="hidden">
+        <div id="imagePreviewContainer" style="display: none; align-items: center; gap: 0.75rem; margin-top: 0.4rem;">
+          <img id="imagePreview" src="" alt="Vista previa" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #d8cbb9;">
+          <span style="font-size: 0.78rem; color: var(--admin-muted);">Foto actual o seleccionada</span>
+        </div>
+      </div>
+      <label class="admin-wide">Descripción<textarea id="description" rows="2" required></textarea></label>
+      <button class="admin-button" type="submit" id="saveProductBtn" style="grid-column: 1 / -1;">Guardar producto</button>
+    </form>
+
+    <section class="admin-card admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Inventario</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="productRows"></tbody>
+      </table>
+      <div class="admin-empty" id="emptyState" hidden>No hay productos que coincidan con la búsqueda.</div>
+    </section>
+  </main>
+
+  <!-- Supabase SDK y Cliente -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="admin.js" defer></script>
+</body>
+</html>
