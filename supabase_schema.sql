@@ -197,3 +197,143 @@ create policy "Eliminacion fotos productos"
   on storage.objects for delete
   using (bucket_id = 'productos_fotos');
 
+-- ==========================================================
+-- 6. FUNCIONES CRUD PARA ADMINISTRADORES (usuarios_admin)
+-- ==========================================================
+
+-- Listar todos los administradores (sin exponer contraseñas)
+create or replace function listar_admins()
+returns table (
+  id uuid,
+  nombre text,
+  email text,
+  rol text,
+  activo boolean,
+  created_at timestamp with time zone
+)
+language plpgsql
+security definer
+as $$
+begin
+  return query
+  select u.id, u.nombre, u.email, u.rol, u.activo, u.created_at
+  from usuarios_admin u
+  order by u.created_at desc;
+end;
+$$;
+
+-- Actualizar datos o contraseña de un administrador existente
+create or replace function actualizar_admin(
+  p_id uuid,
+  p_nombre text,
+  p_email text,
+  p_rol text,
+  p_activo boolean,
+  p_password text default null
+)
+returns jsonb
+language plpgsql
+security definer
+as $$
+begin
+  -- Verificar si el email ya existe en otro usuario
+  if exists (select 1 from usuarios_admin where email = lower(trim(p_email)) and id <> p_id) then
+    return jsonb_build_object('success', false, 'message', 'El correo ya está en uso por otro administrador');
+  end if;
+
+  if p_password is not null and length(trim(p_password)) > 0 then
+    if length(p_password) < 6 then
+      return jsonb_build_object('success', false, 'message', 'La contraseña debe tener mínimo 6 caracteres');
+    end if;
+
+    update usuarios_admin
+    set nombre = trim(p_nombre),
+        email = lower(trim(p_email)),
+        rol = coalesce(p_rol, rol),
+        activo = coalesce(p_activo, activo),
+        password_hash = crypt(p_password, gen_salt('bf'))
+    where id = p_id;
+  else
+    update usuarios_admin
+    set nombre = trim(p_nombre),
+        email = lower(trim(p_email)),
+        rol = coalesce(p_rol, rol),
+        activo = coalesce(p_activo, activo)
+    where id = p_id;
+  end if;
+
+  if not found then
+    return jsonb_build_object('success', false, 'message', 'Administrador no encontrado');
+  end if;
+
+  return jsonb_build_object('success', true, 'message', 'Administrador actualizado exitosamente');
+end;
+$$;
+
+-- Eliminar un administrador de forma segura
+create or replace function eliminar_admin(p_id uuid)
+returns jsonb
+language plpgsql
+security definer
+as $$
+declare
+  total_admins integer;
+begin
+  select count(*) into total_admins from usuarios_admin;
+  if total_admins <= 1 then
+    return jsonb_build_object('success', false, 'message', 'No puedes eliminar el único administrador restante');
+  end if;
+
+  delete from usuarios_admin where id = p_id;
+
+  if not found then
+    return jsonb_build_object('success', false, 'message', 'Administrador no encontrado');
+  end if;
+
+  return jsonb_build_object('success', true, 'message', 'Administrador eliminado exitosamente');
+end;
+$$;
+
+-- Conceder permisos de ejecución para anon y authenticated
+grant execute on function listar_admins() to anon, authenticated;
+grant execute on function actualizar_admin(uuid, text, text, text, boolean, text) to anon, authenticated;
+grant execute on function eliminar_admin(uuid) to anon, authenticated;
+grant execute on function registrar_admin(text, text, text, text) to anon, authenticated;
+grant execute on function login_admin(text, text) to anon, authenticated;
+
+-- ==========================================================
+-- 7. TABLA: ajustes_tienda (Fotos de presentación y configuración)
+-- ==========================================================
+create table if not exists ajustes_tienda (
+  clave text primary key,
+  valor jsonb not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- Habilitar Row Level Security (RLS)
+alter table ajustes_tienda enable row level security;
+
+-- Política de lectura pública (Cualquier visitante de la tienda puede ver la configuración)
+create policy "Lectura publica ajustes"
+  on ajustes_tienda for select
+  using (true);
+
+-- Política de modificación para administradores
+create policy "Administracion ajustes"
+  on ajustes_tienda for all
+  using (true)
+  with check (true);
+
+-- Insertar configuración inicial por defecto de la tarjeta de presentación
+insert into ajustes_tienda (clave, valor)
+values (
+  'presentacion',
+  jsonb_build_object(
+    'foto1', 'images/articulo/articulo5.png',
+    'foto2', 'images/articulo/articulo13.png',
+    'foto3', 'images/articulo/articulo18.png',
+    'etiqueta', 'Tejido Artesanal'
+  )
+)
+on conflict (clave) do nothing;
+

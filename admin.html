@@ -20,12 +20,6 @@
         <p>Panel de Administración y Control de Stock</p>
       </div>
 
-      <!-- Pestañas de acceso -->
-      <div class="auth-tabs">
-        <button type="button" class="auth-tab active" id="tabLoginBtn">Iniciar sesión</button>
-        <button type="button" class="auth-tab" id="tabRegisterBtn">Registrarse</button>
-      </div>
-
       <!-- Formulario Login -->
       <form id="loginForm" class="admin-login-form">
         <div id="loginError" class="admin-login-error" hidden></div>
@@ -38,28 +32,6 @@
           <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
         </div>
         <button type="submit" class="admin-button full-width" id="loginSubmitBtn">Ingresar al panel</button>
-      </form>
-
-      <!-- Formulario Registro -->
-      <form id="registerForm" class="admin-login-form" hidden>
-        <div id="registerMsg" class="admin-login-error" hidden></div>
-        <div class="form-group">
-          <label for="regName">Nombre completo</label>
-          <input type="text" id="regName" placeholder="Tu nombre" required autocomplete="name">
-        </div>
-        <div class="form-group">
-          <label for="regEmail">Correo electrónico</label>
-          <input type="email" id="regEmail" placeholder="nuevo.admin@tejiendo.com" required autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label for="regPassword">Contraseña</label>
-          <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" minlength="6" required autocomplete="new-password">
-        </div>
-        <div class="form-group">
-          <label for="regConfirmPassword">Confirmar contraseña</label>
-          <input type="password" id="regConfirmPassword" placeholder="Repite tu contraseña" minlength="6" required autocomplete="new-password">
-        </div>
-        <button type="submit" class="admin-button full-width" id="registerSubmitBtn">Crear cuenta de admin</button>
       </form>
 
       <div class="admin-login-footer">
@@ -76,81 +48,317 @@
         <span>Tejiendo Tradiciones · Admin</span>
       </div>
       <div class="admin-topbar-actions">
+        <div id="adminUserBadge"></div>
         <a class="admin-link" href="index.html">Ver tienda</a>
         <button class="admin-button secondary small" id="adminLogoutBtn" type="button">Cerrar sesión</button>
       </div>
     </header>
 
-    <section class="admin-heading">
-      <span class="admin-kicker">Panel de administración</span>
-      <h1>Control del Inventario</h1>
-      <p>Administración de productos, disponibilidad y existencias.</p>
-    </section>
+    <!-- Selector de secciones del panel -->
+    <nav class="admin-nav-tabs" aria-label="Navegación del panel">
+      <button type="button" class="admin-nav-tab active" id="navTabProducts">
+        <span class="nav-tab-icon">📦</span> Inventario de Productos
+      </button>
+      <button type="button" class="admin-nav-tab" id="navTabAdmins">
+        <span class="nav-tab-icon">👥</span> Gestión de Administradores
+      </button>
+      <button type="button" class="admin-nav-tab" id="navTabShowcase">
+        <span class="nav-tab-icon">🖼️</span> Fotos de Presentación
+      </button>
+    </nav>
 
-    <section class="admin-stats" aria-label="Resumen del inventario">
-      <div class="admin-stat"><span>Productos</span><strong id="totalProducts">0</strong></div>
-      <div class="admin-stat"><span>Disponibles</span><strong id="availableProducts">0</strong></div>
-      <div class="admin-stat"><span>Unidades en stock</span><strong id="totalStock">0</strong></div>
-      <div class="admin-stat alert"><span>Por reponer</span><strong id="lowStock">0</strong></div>
-    </section>
+    <!-- SECCIÓN: INVENTARIO DE PRODUCTOS -->
+    <div id="productsSection">
+      <section class="admin-heading">
+        <span class="admin-kicker">Panel de administración</span>
+        <h1 id="productsMainTitle">Control del Inventario</h1>
+        <p id="productsKickerDesc">Administración de productos, disponibilidad y existencias.</p>
+      </section>
 
-    <section class="admin-toolbar" aria-label="Herramientas de productos">
-      <input class="admin-search" id="productSearch" type="search" placeholder="Buscar por nombre o código...">
-      <select id="categoryFilter" aria-label="Filtrar por categoría">
-        <option value="Todos">Todas las categorías</option>
-        <option>Aretes</option>
-        <option>Blusa</option>
-        <option>Cenefa</option>
-      </select>
-      <button class="admin-button" id="newProduct" type="button">＋ Nuevo producto</button>
-    </section>
+      <section class="admin-stats" aria-label="Resumen del inventario">
+        <div class="admin-stat"><span>Productos</span><strong id="totalProducts">0</strong></div>
+        <div class="admin-stat"><span>Disponibles</span><strong id="availableProducts">0</strong></div>
+        <div class="admin-stat"><span>Unidades en stock</span><strong id="totalStock">0</strong></div>
+        <div class="admin-stat alert"><span>Por reponer</span><strong id="lowStock">0</strong></div>
+      </section>
 
-    <form class="admin-card admin-form" id="productForm" hidden>
-      <div class="admin-form-title">
-        <h2 id="formTitle">Nuevo producto</h2>
-        <button class="admin-button secondary" id="cancelForm" type="button">Cancelar</button>
-      </div>
-      <input id="editId" type="hidden">
-      <label>Nombre<input id="name" required></label>
-      <label>Código<input id="code" placeholder="AR-013" required></label>
-      <label>Categoría
-        <select id="category">
+      <section class="admin-toolbar" aria-label="Herramientas de productos">
+        <input class="admin-search" id="productSearch" type="search" placeholder="Buscar por nombre o código...">
+        <select id="categoryFilter" aria-label="Filtrar por categoría">
+          <option value="Todos">Todas las categorías</option>
           <option>Aretes</option>
           <option>Blusa</option>
           <option>Cenefa</option>
         </select>
-      </label>
-      <label>Precio (MXN)<input id="price" type="number" min="0" required></label>
-      <label>Stock inicial<input id="stock" type="number" min="0" required></label>
-      <div style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.35rem;">
-        <label for="imageFile" style="font-weight: 600; font-size: 0.78rem; color: #5f574f;">Foto del producto (Seleccionar imagen)</label>
-        <input id="imageFile" type="file" accept="image/*">
-        <input id="image" type="hidden">
-        <div id="imagePreviewContainer" style="display: none; align-items: center; gap: 0.75rem; margin-top: 0.4rem;">
-          <img id="imagePreview" src="" alt="Vista previa" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #d8cbb9;">
-          <span style="font-size: 0.78rem; color: var(--admin-muted);">Foto actual o seleccionada</span>
-        </div>
-      </div>
-      <label class="admin-wide">Descripción<textarea id="description" rows="2" required></textarea></label>
-      <button class="admin-button" type="submit" id="saveProductBtn" style="grid-column: 1 / -1;">Guardar producto</button>
-    </form>
+        <button class="admin-button" id="newProduct" type="button">＋ Nuevo producto</button>
+      </section>
 
-    <section class="admin-card admin-table-wrap">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Categoría</th>
-            <th>Precio</th>
-            <th>Inventario</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="productRows"></tbody>
-      </table>
-      <div class="admin-empty" id="emptyState" hidden>No hay productos que coincidan con la búsqueda.</div>
-    </section>
+      <form class="admin-card admin-form" id="productForm" hidden>
+        <div class="admin-form-title">
+          <h2 id="formTitle">Nuevo producto</h2>
+          <button class="admin-button secondary" id="cancelForm" type="button">Cancelar</button>
+        </div>
+        <input id="editId" type="hidden">
+        <label>Nombre<input id="name" required></label>
+        <label>Código<input id="code" placeholder="AR-013" required></label>
+        <label>Categoría
+          <select id="category">
+            <option>Aretes</option>
+            <option>Blusa</option>
+            <option>Cenefa</option>
+          </select>
+        </label>
+        <label>Precio (MXN)<input id="price" type="number" min="0" required></label>
+        <label>Stock inicial<input id="stock" type="number" min="0" required></label>
+        <div style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.35rem;">
+          <label for="imageFile" style="font-weight: 600; font-size: 0.78rem; color: #5f574f;">Foto del producto (Seleccionar imagen)</label>
+          <input id="imageFile" type="file" accept="image/*">
+          <input id="image" type="hidden">
+          <div id="imagePreviewContainer" style="display: none; align-items: center; gap: 0.75rem; margin-top: 0.4rem;">
+            <img id="imagePreview" src="" alt="Vista previa" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #d8cbb9;">
+            <span style="font-size: 0.78rem; color: var(--admin-muted);">Foto actual o seleccionada</span>
+          </div>
+        </div>
+        <label class="admin-wide">Descripción<textarea id="description" rows="2" required></textarea></label>
+        <button class="admin-button" type="submit" id="saveProductBtn" style="grid-column: 1 / -1;">Guardar producto</button>
+      </form>
+
+      <section class="admin-card admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Inventario</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="productRows"></tbody>
+        </table>
+        <div class="admin-empty" id="emptyState" hidden>No hay productos que coincidan con la búsqueda.</div>
+      </section>
+    </div>
+
+    <!-- SECCIÓN: GESTIÓN DE ADMINISTRADORES -->
+    <div id="adminsSection" hidden>
+      <section class="admin-heading">
+        <span class="admin-kicker">Usuarios y Accesos</span>
+        <h1>Gestión de Administradores</h1>
+        <p>Control de cuentas de acceso, roles y contraseñas de administradores.</p>
+      </section>
+
+      <section class="admin-stats" aria-label="Resumen de administradores">
+        <div class="admin-stat"><span>Total administradores</span><strong id="totalAdmins">0</strong></div>
+        <div class="admin-stat"><span>Cuentas activas</span><strong id="activeAdmins">0</strong></div>
+        <div class="admin-stat"><span>Administradores</span><strong id="roleAdmins">0</strong></div>
+        <div class="admin-stat"><span>Vendedores</span><strong id="roleSellers">0</strong></div>
+      </section>
+
+      <!-- Alerta informativa de Supabase SQL si fuera requerida -->
+      <div id="adminSqlNotice" class="admin-sql-banner" hidden>
+        <strong>⚠️ Nota de configuración de Supabase:</strong>
+        <p>Para habilitar la edición y eliminación de administradores, recuerda ejecutar la sección 6 de <code>supabase_schema.sql</code> en el <strong>SQL Editor</strong> de Supabase.</p>
+      </div>
+
+      <section class="admin-toolbar" aria-label="Herramientas de administradores">
+        <input class="admin-search" id="adminSearch" type="search" placeholder="Buscar por nombre o correo...">
+        <select id="adminRoleFilter" aria-label="Filtrar por rol">
+          <option value="Todos">Todos los roles</option>
+          <option value="admin">Administrador</option>
+          <option value="vendedor">Vendedor</option>
+        </select>
+        <button class="admin-button" id="newAdminBtn" type="button">＋ Nuevo Administrador</button>
+      </section>
+
+      <!-- Formulario para Crear / Editar Administrador -->
+      <form class="admin-card admin-form" id="adminUserForm" hidden>
+        <div class="admin-form-title">
+          <h2 id="adminFormTitle">Nuevo Administrador</h2>
+          <button class="admin-button secondary" id="cancelAdminForm" type="button">Cancelar</button>
+        </div>
+        <input id="adminUserId" type="hidden">
+        
+        <label>Nombre completo
+          <input id="adminUserName" type="text" placeholder="Ej. Ana Pérez" required autocomplete="name">
+        </label>
+        
+        <label>Correo electrónico
+          <input id="adminUserEmail" type="email" placeholder="admin@tejiendo.com" required autocomplete="email">
+        </label>
+        
+        <label>Rol
+          <select id="adminUserRole">
+            <option value="admin">Administrador (Acceso Total)</option>
+            <option value="vendedor">Vendedor (Gestor de Inventario)</option>
+          </select>
+          <small style="display:block; font-size: 0.72rem; color: var(--admin-muted); margin-top: 3px;">
+            El vendedor sólo gestiona inventario (no ve administradores ni fotos de tienda, ni puede eliminar productos).
+          </small>
+        </label>
+
+        <label>Estado de la cuenta
+          <select id="adminUserActive">
+            <option value="true">Activo (Puede iniciar sesión)</option>
+            <option value="false">Inactivo (Acceso bloqueado)</option>
+          </select>
+        </label>
+
+        <label>Contraseña
+          <input id="adminUserPassword" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+          <small id="adminPassHint" style="display:block; font-size: 0.72rem; color: var(--admin-muted); margin-top: 3px;">
+            Al crear es requerida. Al editar, déjala vacía para no cambiarla.
+          </small>
+        </label>
+
+        <label>Confirmar contraseña
+          <input id="adminUserConfirmPassword" type="password" placeholder="Repite la contraseña" autocomplete="new-password">
+        </label>
+
+        <div id="adminFormMsg" class="admin-login-error admin-wide" style="grid-column: 1 / -1;" hidden></div>
+
+        <button class="admin-button" type="submit" id="saveAdminBtn" style="grid-column: 1 / -1;">Guardar Administrador</button>
+      </form>
+
+      <!-- Tabla de Administradores -->
+      <section class="admin-card admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Administrador</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Fecha de Registro</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="adminUserRows"></tbody>
+        </table>
+        <div class="admin-empty" id="adminUserEmptyState" hidden>No hay cuentas que coincidan con la búsqueda.</div>
+      </section>
+    </div>
+
+    <!-- SECCIÓN: FOTOS DE PRESENTACIÓN (SHOWCASE) -->
+    <div id="showcaseSection" hidden>
+      <section class="admin-heading">
+        <span class="admin-kicker">Personalización Visual</span>
+        <h1>Fotos de Presentación</h1>
+        <p>Elige las 3 fotos destacadas y la etiqueta que aparecen en la tarjeta de bienvenida de la tienda.</p>
+      </section>
+
+      <div class="showcase-editor-layout">
+        <!-- Tarjeta de Vista Previa en Vivo -->
+        <div class="admin-card showcase-preview-card">
+          <div class="showcase-preview-title">
+            <h3>👁 Vista previa en la tienda</h3>
+            <span class="showcase-preview-badge">En tiempo real</span>
+          </div>
+          <div class="img-deco showcase-preview-deco">
+            <div class="img-deco-grid">
+              <img id="adminPreviewImg1" src="images/articulo/articulo5.png" alt="Foto 1">
+              <img id="adminPreviewImg2" src="images/articulo/articulo13.png" alt="Foto 2">
+              <img id="adminPreviewImg3" src="images/articulo/articulo18.png" alt="Foto 3">
+            </div>
+            <span id="adminPreviewLabel">Tejido Artesanal</span>
+          </div>
+          <p style="font-size:0.8rem; color:var(--admin-muted); text-align:center; margin-top:1.25rem;">
+            Así es exactamente como se mostrará la tarjeta en la página principal de la tienda.
+          </p>
+        </div>
+
+        <!-- Formulario de Configuración de las 3 Fotos -->
+        <form class="admin-card showcase-form" id="showcaseForm">
+          <h2 style="color:var(--vino); font-size:1.35rem; margin-bottom:0.4rem;">Configurar Prendas Destacadas</h2>
+          <p style="font-size:0.84rem; color:var(--admin-muted); margin-bottom:1.25rem;">
+            Puedes elegir un producto existente de tu inventario o subir una foto nueva desde tu computadora.
+          </p>
+
+          <div id="showcaseAlert" class="admin-login-error" hidden style="margin-bottom:1.2rem;"></div>
+
+          <!-- Control Foto 1 -->
+          <div class="showcase-photo-control">
+            <div class="showcase-photo-header">
+              <strong>Foto 1 (Izquierda)</strong>
+              <div class="showcase-thumb-mini">
+                <img id="thumbMini1" src="images/articulo/articulo5.png" alt="Mini 1">
+              </div>
+            </div>
+            <div class="showcase-inputs-row">
+              <label>
+                Elegir de producto existente:
+                <select id="selectProduct1" class="showcase-select-prod">
+                  <option value="">-- Seleccionar producto --</option>
+                </select>
+              </label>
+              <label>
+                O subir foto nueva:
+                <input type="file" id="fileUpload1" accept="image/*">
+              </label>
+            </div>
+            <input type="hidden" id="valImg1" value="images/articulo/articulo5.png">
+          </div>
+
+          <!-- Control Foto 2 -->
+          <div class="showcase-photo-control">
+            <div class="showcase-photo-header">
+              <strong>Foto 2 (Centro)</strong>
+              <div class="showcase-thumb-mini">
+                <img id="thumbMini2" src="images/articulo/articulo13.png" alt="Mini 2">
+              </div>
+            </div>
+            <div class="showcase-inputs-row">
+              <label>
+                Elegir de producto existente:
+                <select id="selectProduct2" class="showcase-select-prod">
+                  <option value="">-- Seleccionar producto --</option>
+                </select>
+              </label>
+              <label>
+                O subir foto nueva:
+                <input type="file" id="fileUpload2" accept="image/*">
+              </label>
+            </div>
+            <input type="hidden" id="valImg2" value="images/articulo/articulo13.png">
+          </div>
+
+          <!-- Control Foto 3 -->
+          <div class="showcase-photo-control">
+            <div class="showcase-photo-header">
+              <strong>Foto 3 (Derecha)</strong>
+              <div class="showcase-thumb-mini">
+                <img id="thumbMini3" src="images/articulo/articulo18.png" alt="Mini 3">
+              </div>
+            </div>
+            <div class="showcase-inputs-row">
+              <label>
+                Elegir de producto existente:
+                <select id="selectProduct3" class="showcase-select-prod">
+                  <option value="">-- Seleccionar producto --</option>
+                </select>
+              </label>
+              <label>
+                O subir foto nueva:
+                <input type="file" id="fileUpload3" accept="image/*">
+              </label>
+            </div>
+            <input type="hidden" id="valImg3" value="images/articulo/articulo18.png">
+          </div>
+
+          <!-- Texto de la Etiqueta -->
+          <div class="form-group" style="margin-top:0.75rem;">
+            <label for="inputShowcaseLabel" style="font-weight:600; font-size:0.84rem; color:var(--admin-ink);">Texto de la Etiqueta</label>
+            <input type="text" id="inputShowcaseLabel" value="Tejido Artesanal" placeholder="Ej. Tejido Artesanal, Nueva Colección, etc." required style="width:100%; border:1px solid #d9cfc3; border-radius:7px; padding:0.7rem; font-size:0.9rem; margin-top:0.35rem;">
+          </div>
+
+          <div style="margin-top:1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <button type="submit" class="admin-button" id="btnSaveShowcase" style="flex:1; min-width:200px;">Guardar cambios en la tienda</button>
+            <button type="button" class="admin-button secondary" id="btnResetShowcase">Restablecer por defecto</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </main>
 
   <!-- Supabase SDK y Cliente -->

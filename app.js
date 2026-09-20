@@ -10,11 +10,51 @@ function getImageUrl(value) {
 
 const logoUrl = 'images/logo/logo colectivo.png';
 
+async function cargarFotosPresentacion() {
+  try {
+    const cached = localStorage.getItem('presentacion_ajustes');
+    if (cached) {
+      aplicarFotosPresentacion(JSON.parse(cached));
+    }
+  } catch (e) {}
+
+  if (window.supabaseClient) {
+    try {
+      const { data, error } = await window.supabaseClient
+        .from('ajustes_tienda')
+        .select('*')
+        .eq('clave', 'presentacion')
+        .single();
+
+      if (!error && data?.valor) {
+        aplicarFotosPresentacion(data.valor);
+        localStorage.setItem('presentacion_ajustes', JSON.stringify(data.valor));
+      }
+    } catch (e) {
+      console.warn('No se pudo cargar ajustes de presentación desde Supabase:', e);
+    }
+  }
+}
+
+function aplicarFotosPresentacion(ajustes) {
+  if (!ajustes) return;
+  const img1 = document.getElementById('showcaseImg1');
+  const img2 = document.getElementById('showcaseImg2');
+  const img3 = document.getElementById('showcaseImg3');
+  const label = document.getElementById('showcaseLabel');
+
+  if (img1 && ajustes.foto1) img1.src = getImageUrl(ajustes.foto1);
+  if (img2 && ajustes.foto2) img2.src = getImageUrl(ajustes.foto2);
+  if (img3 && ajustes.foto3) img3.src = getImageUrl(ajustes.foto3);
+  if (label && ajustes.etiqueta) label.textContent = ajustes.etiqueta;
+}
+
 window.addEventListener('load', () => {
   const logoElement = document.getElementById('navLogo');
   if (logoElement) {
     logoElement.innerHTML = `<img src="${logoUrl}" alt="Tejiendo Tradiciones"><span>Tejiendo Tradiciones</span>`;
   }
+  cargarFotosPresentacion();
 });
 
 let productos = [
