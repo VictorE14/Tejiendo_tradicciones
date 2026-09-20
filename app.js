@@ -310,9 +310,27 @@ function agregarAlCarrito(prod) {
   const existente = carrito.find(item => item.id === prod.id);
   if (existente) {
     existente.cantidad += 1;
+    existente.seleccionado = true;
   } else {
-    carrito.push({ ...prod, cantidad: 1 });
+    carrito.push({ ...prod, cantidad: 1, seleccionado: true });
   }
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+  actualizarCarritoUI();
+}
+
+function toggleSeleccion(id) {
+  const item = carrito.find(p => p.id === id);
+  if (item) {
+    item.seleccionado = (item.seleccionado === false) ? true : false;
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    actualizarCarritoUI();
+  }
+}
+
+function toggleSeleccionarTodos(marcar) {
+  carrito.forEach(item => {
+    item.seleccionado = Boolean(marcar);
+  });
   localStorage.setItem('carrito', JSON.stringify(carrito));
   actualizarCarritoUI();
 }
@@ -328,13 +346,19 @@ function actualizarCarritoUI() {
   const resumenCount = document.getElementById('cartResumenCount');
   const cartMsg = document.getElementById('cartMsg');
   const clienteForm = document.getElementById('clienteForm');
+  const selectionBar = document.getElementById('cartSelectionBar');
+  const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+  const selectionCounter = document.getElementById('cartSelectionCounter');
 
-  let total = 0;
-  let count = 0;
+  let totalCompra = 0;
+  let piezasTotales = 0;
+  let piezasCompra = 0;
+  let itemsSeleccionadosCount = 0;
   container.innerHTML = '';
 
   if (carrito.length === 0) {
     if (emptyMsg) emptyMsg.style.display = 'block';
+    if (selectionBar) selectionBar.style.display = 'none';
     if (resumenBox) resumenBox.style.display = 'none';
     if (cartMsg) cartMsg.style.display = 'none';
     if (clienteForm) clienteForm.style.display = 'none';
@@ -345,6 +369,7 @@ function actualizarCarritoUI() {
   }
 
   if (emptyMsg) emptyMsg.style.display = 'none';
+  if (selectionBar) selectionBar.style.display = 'flex';
   if (resumenBox) resumenBox.style.display = 'flex';
   if (cartMsg) cartMsg.style.display = 'block';
   if (clienteForm) clienteForm.style.display = 'block';
@@ -352,12 +377,18 @@ function actualizarCarritoUI() {
   if (vaciarBtn) vaciarBtn.style.display = 'flex';
 
   carrito.forEach(item => {
+    const isSelected = (item.seleccionado !== false);
     const subtotal = item.precio * item.cantidad;
-    total += subtotal;
-    count += item.cantidad;
+    piezasTotales += item.cantidad;
+
+    if (isSelected) {
+      totalCompra += subtotal;
+      piezasCompra += item.cantidad;
+      itemsSeleccionadosCount += 1;
+    }
 
     const div = document.createElement('div');
-    div.className = 'cart-item';
+    div.className = `cart-item ${isSelected ? '' : 'cart-item-unselected'}`;
 
     const imgSrc = item.imagen ? getImageUrl(item.imagen) : '';
     const thumbContent = imgSrc
@@ -365,6 +396,9 @@ function actualizarCarritoUI() {
       : `<span class="thumb-fallback">🧶</span>`;
 
     div.innerHTML = `
+      <label class="cart-item-check-label" title="${isSelected ? 'Deseleccionar para no comprar ahora' : 'Seleccionar para comprar ahora'}">
+        <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleSeleccion('${item.id}')" aria-label="Seleccionar ${item.nombre}">
+      </label>
       <div class="cart-item-thumb">
         ${thumbContent}
       </div>
@@ -382,9 +416,16 @@ function actualizarCarritoUI() {
     container.appendChild(div);
   });
 
-  if (totalSpan) totalSpan.textContent = `$${total} MXN`;
-  if (resumenCount) resumenCount.textContent = `${count} ${count === 1 ? 'artículo' : 'artículos'}`;
-  if (navCountSpan) navCountSpan.textContent = count;
+  if (selectAllCheckbox) {
+    selectAllCheckbox.checked = (itemsSeleccionadosCount === carrito.length && carrito.length > 0);
+  }
+  if (selectionCounter) {
+    selectionCounter.textContent = `${itemsSeleccionadosCount} de ${carrito.length} seleccionadas`;
+  }
+
+  if (totalSpan) totalSpan.textContent = `$${totalCompra} MXN`;
+  if (resumenCount) resumenCount.textContent = `${piezasCompra} ${piezasCompra === 1 ? 'artículo' : 'artículos'}`;
+  if (navCountSpan) navCountSpan.textContent = piezasTotales;
 }
 
 function cambiarCantidad(id, cambio) {
@@ -483,6 +524,13 @@ function finalizarWhatsApp() {
     return;
   }
 
+  // Filtrar exclusivamente las prendas marcadas/seleccionadas por el usuario
+  const prendasAComprar = carrito.filter(item => item.seleccionado !== false);
+  if (prendasAComprar.length === 0) {
+    alert('No has seleccionado ninguna prenda para comprar. Por favor marca la casilla de las prendas que deseas incluir en tu pedido.');
+    return;
+  }
+
   limpiarErroresFormulario();
 
   const nombreInput = document.getElementById('clienteNombre');
@@ -543,12 +591,12 @@ function finalizarWhatsApp() {
     notas
   });
 
-  // Generar ticket estructurado para WhatsApp
+  // Generar ticket estructurado para WhatsApp solo con las prendas seleccionadas
   let total = 0;
   let totalPiezas = 0;
   let listaPrendas = '';
 
-  carrito.forEach(item => {
+  prendasAComprar.forEach(item => {
     const subtotal = item.precio * item.cantidad;
     total += subtotal;
     totalPiezas += item.cantidad;
@@ -572,6 +620,11 @@ function finalizarWhatsApp() {
 
   const url = `https://wa.me/529831066117?text=${encodeURIComponent(mensaje)}`;
   window.open(url, '_blank');
+
+  // Remover del carrito ÚNICAMENTE las prendas seleccionadas/compradas, conservando las desmarcadas
+  carrito = carrito.filter(item => item.seleccionado === false);
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+  actualizarCarritoUI();
 }
 
 // Eventos filtros de categoría

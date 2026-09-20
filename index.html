@@ -138,18 +138,30 @@
         <p style="font-size: 0.85rem; color: #777;">Explora nuestro catálogo artesanal y añade tus prendas favoritas.</p>
       </div>
 
+      <!-- Barra de selección rápida de prendas -->
+      <div class="cart-selection-bar" id="cartSelectionBar" style="display:none;">
+        <label class="cart-select-all-label">
+          <input type="checkbox" id="selectAllCheckbox" onchange="toggleSeleccionarTodos(this.checked)" checked>
+          <span>Seleccionar todas</span>
+        </label>
+        <span class="cart-selection-counter" id="cartSelectionCounter"></span>
+      </div>
+
       <div id="cartItems" class="cart-items-list"></div>
 
       <!-- Resumen del Pedido -->
       <div class="cart-resumen" id="cartResumen" style="display:none;">
         <div class="cart-resumen-row">
-          <span>Artículos seleccionados:</span>
+          <span>Prendas a comprar:</span>
           <strong id="cartResumenCount">0 piezas</strong>
         </div>
         <div class="cart-resumen-row total">
           <span>Total a pagar:</span>
           <strong id="cartTotal">$0 MXN</strong>
         </div>
+        <small id="cartResumenHint" style="font-size:0.75rem; color:#7d7062; display:block; margin-top:0.25rem; line-height:1.35;">
+          ℹ️ Solo se pedirán por WhatsApp las prendas marcadas con casilla ✓. Las desmarcadas se quedarán guardadas en tu carrito.
+        </small>
       </div>
 
       <!-- Formulario de Entrega para Pueblos y Ciudades -->

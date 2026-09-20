@@ -1114,19 +1114,102 @@
       gap: 0.65rem;
     }
 
+    /* Barra de selección rápida */
+    .cart-selection-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      background: #f4ecdf;
+      border: 1px solid #e1d6c7;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      color: #52473c;
+    }
+
+    .cart-select-all-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      user-select: none;
+    }
+
+    .cart-select-all-label input[type="checkbox"],
+    .cart-item-check-label input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid #a89a8a;
+      border-radius: 5px;
+      background: #ffffff;
+      cursor: pointer;
+      display: grid;
+      place-content: center;
+      transition: all 0.15s ease;
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    .cart-select-all-label input[type="checkbox"]:checked,
+    .cart-item-check-label input[type="checkbox"]:checked {
+      background: var(--vino);
+      border-color: var(--vino);
+    }
+
+    .cart-select-all-label input[type="checkbox"]:checked::before,
+    .cart-item-check-label input[type="checkbox"]:checked::before {
+      content: "✓";
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .cart-selection-counter {
+      font-size: 0.74rem;
+      color: var(--oliva);
+      font-weight: 700;
+    }
+
+    .cart-item-check-label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      padding-right: 0.1rem;
+    }
+
     .cart-item {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.65rem;
       background: #ffffff;
       padding: 0.75rem;
       border: 1px solid #e7ded3;
       border-radius: 14px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-      transition: border-color 0.2s ease;
+      transition: all 0.2s ease;
     }
     .cart-item:hover {
       border-color: #d6c6b3;
+    }
+
+    .cart-item.cart-item-unselected {
+      opacity: 0.58;
+      background: #f8f5f0;
+      border-style: dashed;
+      box-shadow: none;
+    }
+
+    .cart-item.cart-item-unselected .cart-item-name {
+      color: #7b7165;
+    }
+
+    .cart-item.cart-item-unselected .cart-item-calc strong {
+      color: #8c8174;
     }
 
     .cart-item-thumb {
