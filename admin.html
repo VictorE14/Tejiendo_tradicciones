@@ -49,8 +49,10 @@
       </div>
       <div class="admin-topbar-actions">
         <div id="adminUserBadge"></div>
-        <a class="admin-link" href="index.html">Ver tienda</a>
-        <button class="admin-button secondary small" id="adminLogoutBtn" type="button">Cerrar sesión</button>
+        <div class="admin-topbar-links">
+          <a class="admin-link" href="index.html">🏪 Ver tienda</a>
+          <button class="admin-button secondary small" id="adminLogoutBtn" type="button">Cerrar sesión</button>
+        </div>
       </div>
     </header>
 
@@ -122,6 +124,10 @@
         <label class="admin-wide">Descripción<textarea id="description" rows="2" required></textarea></label>
         <button class="admin-button" type="submit" id="saveProductBtn" style="grid-column: 1 / -1;">Guardar producto</button>
       </form>
+
+      <div class="admin-table-hint">
+        <span>↔ Desliza la tabla para ver inventario y acciones</span>
+      </div>
 
       <section class="admin-card admin-table-wrap">
         <table class="admin-table">
@@ -220,6 +226,10 @@
 
         <button class="admin-button" type="submit" id="saveAdminBtn" style="grid-column: 1 / -1;">Guardar Administrador</button>
       </form>
+
+      <div class="admin-table-hint">
+        <span>↔ Desliza la tabla para ver estado y acciones</span>
+      </div>
 
       <!-- Tabla de Administradores -->
       <section class="admin-card admin-table-wrap">
