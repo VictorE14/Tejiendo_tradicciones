@@ -55,6 +55,8 @@ window.addEventListener('load', () => {
     logoElement.innerHTML = `<img src="${logoUrl}" alt="Tejiendo Tradiciones"><span>Tejiendo Tradiciones</span>`;
   }
   cargarFotosPresentacion();
+  cargarDatosClienteGuardados();
+  configurarListenersFormularioCliente();
 });
 
 let productos = [
@@ -322,50 +324,67 @@ function actualizarCarritoUI() {
   const emptyMsg = document.getElementById('cartEmpty');
   const finalizarBtn = document.getElementById('finalizarBtn');
   const vaciarBtn = document.getElementById('vaciarBtn');
+  const resumenBox = document.getElementById('cartResumen');
+  const resumenCount = document.getElementById('cartResumenCount');
+  const cartMsg = document.getElementById('cartMsg');
+  const clienteForm = document.getElementById('clienteForm');
 
   let total = 0;
   let count = 0;
   container.innerHTML = '';
 
   if (carrito.length === 0) {
-    emptyMsg.style.display = 'block';
-    totalSpan.style.display = 'none';
-    finalizarBtn.style.display = 'none';
-    vaciarBtn.style.display = 'none';
-    document.getElementById('clienteForm').style.display = 'none';
-    navCountSpan.textContent = '0';
+    if (emptyMsg) emptyMsg.style.display = 'block';
+    if (resumenBox) resumenBox.style.display = 'none';
+    if (cartMsg) cartMsg.style.display = 'none';
+    if (clienteForm) clienteForm.style.display = 'none';
+    if (finalizarBtn) finalizarBtn.style.display = 'none';
+    if (vaciarBtn) vaciarBtn.style.display = 'none';
+    if (navCountSpan) navCountSpan.textContent = '0';
     return;
   }
 
-  emptyMsg.style.display = 'none';
-  totalSpan.style.display = 'block';
-  finalizarBtn.style.display = 'block';
-  vaciarBtn.style.display = 'block';
-  document.getElementById('clienteForm').style.display = 'block';
+  if (emptyMsg) emptyMsg.style.display = 'none';
+  if (resumenBox) resumenBox.style.display = 'flex';
+  if (cartMsg) cartMsg.style.display = 'block';
+  if (clienteForm) clienteForm.style.display = 'block';
+  if (finalizarBtn) finalizarBtn.style.display = 'flex';
+  if (vaciarBtn) vaciarBtn.style.display = 'flex';
 
   carrito.forEach(item => {
-    total += item.precio * item.cantidad;
+    const subtotal = item.precio * item.cantidad;
+    total += subtotal;
     count += item.cantidad;
+
     const div = document.createElement('div');
     div.className = 'cart-item';
+
+    const imgSrc = item.imagen ? getImageUrl(item.imagen) : '';
+    const thumbContent = imgSrc
+      ? `<img src="${imgSrc}" alt="${item.nombre}" onerror="this.outerHTML='<span class=\\'thumb-fallback\\'>🧶</span>'">`
+      : `<span class="thumb-fallback">🧶</span>`;
+
     div.innerHTML = `
-      <img class="cart-item-image" src="${getImageUrl(item.imagen)}" alt="${item.nombre}" onerror="this.style.visibility='hidden'">
+      <div class="cart-item-thumb">
+        ${thumbContent}
+      </div>
       <div class="cart-item-info">
-        <strong>${item.nombre}</strong><br>
-        <span style="font-size:0.85rem; color:#666;">$${(item.precio * item.cantidad)} MXN</span>
+        <span class="cart-item-name" title="${item.nombre}">${item.nombre}</span>
+        <span class="cart-item-calc">${item.cantidad} × $${item.precio} = <strong>$${subtotal} MXN</strong></span>
       </div>
       <div class="cart-item-controls">
-        <button onclick="cambiarCantidad('${item.id}', -1)">−</button>
+        <button type="button" onclick="cambiarCantidad('${item.id}', -1)" title="Disminuir una pieza" aria-label="Disminuir">−</button>
         <span class="cart-item-cantidad">${item.cantidad}</span>
-        <button onclick="cambiarCantidad('${item.id}', 1)">+</button>
-        <button class="cart-item-remove" onclick="eliminarDelCarrito('${item.id}')">✕</button>
+        <button type="button" onclick="cambiarCantidad('${item.id}', 1)" title="Aumentar una pieza" aria-label="Aumentar">+</button>
+        <button class="cart-item-remove" type="button" onclick="eliminarDelCarrito('${item.id}')" title="Eliminar del carrito" aria-label="Eliminar prenda">🗑️</button>
       </div>
     `;
     container.appendChild(div);
   });
 
-  totalSpan.textContent = `Total: $${total} MXN`;
-  navCountSpan.textContent = count;
+  if (totalSpan) totalSpan.textContent = `$${total} MXN`;
+  if (resumenCount) resumenCount.textContent = `${count} ${count === 1 ? 'artículo' : 'artículos'}`;
+  if (navCountSpan) navCountSpan.textContent = count;
 }
 
 function cambiarCantidad(id, cambio) {
@@ -387,34 +406,169 @@ function eliminarDelCarrito(id) {
 }
 
 function vaciarCarrito() {
-  if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
+  if (confirm('¿Estás seguro de que deseas vaciar todos los productos del carrito?')) {
     carrito = [];
     localStorage.setItem('carrito', JSON.stringify(carrito));
     actualizarCarritoUI();
   }
 }
 
-function finalizarWhatsApp() {
-  if (carrito.length === 0) return;
+// Persistencia y validación de datos de entrega del cliente
+function cargarDatosClienteGuardados() {
+  try {
+    const raw = localStorage.getItem('cliente_datos_entrega');
+    if (!raw) return;
+    const datos = JSON.parse(raw);
+    if (datos.nombre) document.getElementById('clienteNombre').value = datos.nombre;
+    if (datos.telefono) document.getElementById('clienteTelefono').value = datos.telefono;
+    if (datos.poblacion) document.getElementById('clientePoblacion').value = datos.poblacion;
+    if (datos.direccion) document.getElementById('clienteDireccion').value = datos.direccion;
+    if (datos.referencia) document.getElementById('clienteReferencia').value = datos.referencia;
+    if (datos.notas) document.getElementById('clienteNotas').value = datos.notas;
+  } catch (e) {}
+}
 
-  const nombre = document.getElementById('clienteNombre').value.trim();
-  const telefono = document.getElementById('clienteTelefono').value.trim();
-  const direccion = document.getElementById('clienteDireccion').value.trim();
-  if (!nombre || !telefono || !direccion) {
-    alert('Completa tu nombre, teléfono y dirección antes de finalizar el pedido.');
+function guardarDatosClienteLocal(datos) {
+  try {
+    localStorage.setItem('cliente_datos_entrega', JSON.stringify(datos));
+  } catch (e) {}
+}
+
+function configurarListenersFormularioCliente() {
+  const campos = ['clienteNombre', 'clienteTelefono', 'clientePoblacion', 'clienteDireccion', 'clienteReferencia'];
+  campos.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        el.classList.remove('is-invalid');
+        const errKey = id.replace('cliente', '');
+        const err = document.getElementById('err' + errKey);
+        if (err) {
+          err.hidden = true;
+          err.textContent = '';
+        }
+      });
+    }
+  });
+}
+
+function limpiarErroresFormulario() {
+  const campos = ['Nombre', 'Telefono', 'Poblacion', 'Direccion', 'Referencia'];
+  campos.forEach(f => {
+    const input = document.getElementById(`cliente${f}`);
+    const err = document.getElementById(`err${f}`);
+    if (input) input.classList.remove('is-invalid');
+    if (err) {
+      err.hidden = true;
+      err.textContent = '';
+    }
+  });
+}
+
+function mostrarErrorCampo(idInput, idErr, mensaje) {
+  const input = document.getElementById(idInput);
+  const err = document.getElementById(idErr);
+  if (input) {
+    input.classList.add('is-invalid');
+  }
+  if (err) {
+    err.textContent = mensaje;
+    err.hidden = false;
+  }
+}
+
+function finalizarWhatsApp() {
+  if (carrito.length === 0) {
+    alert('Tu carrito está vacío. Agrega al menos una prenda antes de finalizar.');
     return;
   }
 
-  let mensaje = `¡Hola! Me interesa hacer un pedido en Tejiendo Tradiciones.\n\nCliente: ${nombre}\nTeléfono: ${telefono}\nDirección: ${direccion}\n\nProductos:\n`;
+  limpiarErroresFormulario();
+
+  const nombreInput = document.getElementById('clienteNombre');
+  const telefonoInput = document.getElementById('clienteTelefono');
+  const poblacionInput = document.getElementById('clientePoblacion');
+  const direccionInput = document.getElementById('clienteDireccion');
+  const referenciaInput = document.getElementById('clienteReferencia');
+  const notasInput = document.getElementById('clienteNotas');
+
+  const nombre = nombreInput ? nombreInput.value.trim() : '';
+  const telefono = telefonoInput ? telefonoInput.value.trim().replace(/\D/g, '') : '';
+  const poblacion = poblacionInput ? poblacionInput.value.trim() : '';
+  const direccion = direccionInput ? direccionInput.value.trim() : '';
+  const referencia = referenciaInput ? referenciaInput.value.trim() : '';
+  const notas = notasInput ? notasInput.value.trim() : '';
+
+  let primerInvalido = null;
+
+  if (!nombre || nombre.length < 3) {
+    mostrarErrorCampo('clienteNombre', 'errNombre', 'Por favor ingresa tu nombre completo.');
+    if (!primerInvalido) primerInvalido = nombreInput;
+  }
+
+  if (!telefono || telefono.length < 10) {
+    mostrarErrorCampo('clienteTelefono', 'errTelefono', 'Ingresa un número de WhatsApp de 10 dígitos.');
+    if (!primerInvalido) primerInvalido = telefonoInput;
+  }
+
+  if (!poblacion || poblacion.length < 3) {
+    mostrarErrorCampo('clientePoblacion', 'errPoblacion', 'Indica tu municipio, pueblo o comunidad para coordinar el envío.');
+    if (!primerInvalido) primerInvalido = poblacionInput;
+  }
+
+  if (!direccion || direccion.length < 4) {
+    mostrarErrorCampo('clienteDireccion', 'errDireccion', 'Ingresa la calle, cruzamientos o barrio de tu entrega.');
+    if (!primerInvalido) primerInvalido = direccionInput;
+  }
+
+  if (!referencia || referencia.length < 5) {
+    mostrarErrorCampo('clienteReferencia', 'errReferencia', 'Escribe una referencia del domicilio (ej. color de casa, tienda cercana).');
+    if (!primerInvalido) primerInvalido = referenciaInput;
+  }
+
+  // Si hay algún campo inválido, detener y enfocar
+  if (primerInvalido) {
+    primerInvalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    primerInvalido.focus();
+    return;
+  }
+
+  // Guardar datos válidos en localStorage
+  guardarDatosClienteLocal({
+    nombre,
+    telefono,
+    poblacion,
+    direccion,
+    referencia,
+    notas
+  });
+
+  // Generar ticket estructurado para WhatsApp
   let total = 0;
+  let totalPiezas = 0;
+  let listaPrendas = '';
 
   carrito.forEach(item => {
     const subtotal = item.precio * item.cantidad;
     total += subtotal;
-    mensaje += `• ${item.nombre} (x${item.cantidad}) - $${subtotal} MXN\n`;
+    totalPiezas += item.cantidad;
+    listaPrendas += `• ${item.nombre} (x${item.cantidad}) — $${subtotal} MXN\n`;
   });
 
-  mensaje += `\nTotal: $${total} MXN\n\nPor favor, confirma disponibilidad y forma de pago.`;
+  let mensaje = `🧵 *NUEVO PEDIDO — TEJIENDO TRADICIONES* 🧵\n\n`;
+  mensaje += `👤 *Datos para la Entrega:*\n`;
+  mensaje += `• *Cliente:* ${nombre}\n`;
+  mensaje += `• *Teléfono:* ${telefono}\n`;
+  mensaje += `• *Municipio / Población:* ${poblacion}\n`;
+  mensaje += `• *Dirección:* ${direccion}\n`;
+  mensaje += `• *Referencias:* ${referencia}\n`;
+  if (notas) {
+    mensaje += `• *Notas:* ${notas}\n`;
+  }
+
+  mensaje += `\n🛍️ *Prendas Seleccionadas:*\n${listaPrendas}`;
+  mensaje += `\n💰 *Total Estimado:* $${total} MXN (${totalPiezas} ${totalPiezas === 1 ? 'artículo' : 'artículos'})\n\n`;
+  mensaje += `Hola, me gustaría confirmar la disponibilidad de estas prendas artesanales y los métodos de pago. ¡Muchas gracias!`;
 
   const url = `https://wa.me/529831066117?text=${encodeURIComponent(mensaje)}`;
   window.open(url, '_blank');

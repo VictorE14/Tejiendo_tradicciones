@@ -126,29 +126,88 @@
     </footer>
 
     <!-- Carrito Sidebar -->
-    <div id="cartSidebar" class="cart-sidebar">
-      <button class="cart-close" id="closeCart">✕</button>
-      <h2>🛒 Carrito de Compras</h2>
-      <div id="cartEmpty" class="cart-vacio">Tu carrito está vacío</div>
-      <div id="cartItems"></div>
-      <div class="cart-total" id="cartTotal" style="display:none;">Total: $0 MXN</div>
-      <div class="cliente-form" id="clienteForm">
-        <h3>Datos para tu pedido</h3>
-        <label for="clienteNombre">Nombre completo</label>
-        <input type="text" id="clienteNombre" placeholder="Tu nombre" autocomplete="name">
-        <label for="clienteTelefono">Teléfono</label>
-        <input type="tel" id="clienteTelefono" placeholder="10 dígitos" autocomplete="tel">
-        <label for="clienteDireccion">Dirección de entrega</label>
-        <textarea id="clienteDireccion" placeholder="Calle, número, colonia, ciudad y código postal" rows="3"
-          autocomplete="street-address"></textarea>
+    <div id="cartSidebar" class="cart-sidebar" aria-labelledby="cartTitle" role="dialog" aria-modal="true">
+      <div class="cart-header">
+        <h2 id="cartTitle">🛒 Carrito de Compras</h2>
+        <button class="cart-close" id="closeCart" aria-label="Cerrar carrito">✕</button>
       </div>
-      <div class="cart-msg">Al valorar y adquirir estas creaciones, contribuimos a fortalecer la identidad cultural,
-        preservar los saberes artesanales y reconocer el valor del tejido tradicional.</div>
-      <div class="cart-botones">
-        <button class="btn-primary" style="width:100%;" id="finalizarBtn" onclick="finalizarWhatsApp()"
-          style="display:none;">📱 Finalizar por WhatsApp</button>
-        <button class="btn-vaciar-carrito" id="vaciarBtn" onclick="vaciarCarrito()" style="display:none;">Vaciar
-          carrito</button>
+
+      <div id="cartEmpty" class="cart-vacio">
+        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🧶</div>
+        <p style="font-size: 1.05rem; font-weight: 600; color: var(--vino); margin-bottom: 0.3rem;">Tu carrito está vacío</p>
+        <p style="font-size: 0.85rem; color: #777;">Explora nuestro catálogo artesanal y añade tus prendas favoritas.</p>
+      </div>
+
+      <div id="cartItems" class="cart-items-list"></div>
+
+      <!-- Resumen del Pedido -->
+      <div class="cart-resumen" id="cartResumen" style="display:none;">
+        <div class="cart-resumen-row">
+          <span>Artículos seleccionados:</span>
+          <strong id="cartResumenCount">0 piezas</strong>
+        </div>
+        <div class="cart-resumen-row total">
+          <span>Total a pagar:</span>
+          <strong id="cartTotal">$0 MXN</strong>
+        </div>
+      </div>
+
+      <!-- Formulario de Entrega para Pueblos y Ciudades -->
+      <div class="cliente-form" id="clienteForm">
+        <div class="cliente-form-header">
+          <h3>📍 Datos para tu entrega</h3>
+          <span class="cliente-form-badge">Envío artesanal</span>
+        </div>
+        <p class="cliente-form-desc">Completa tus datos para coordinar el envío a tu municipio o comunidad:</p>
+
+        <div class="form-field">
+          <label for="clienteNombre">Nombre completo <span class="req">*</span></label>
+          <input type="text" id="clienteNombre" placeholder="Ej. María González López" autocomplete="name" required>
+          <small class="field-error" id="errNombre" hidden></small>
+        </div>
+
+        <div class="form-field">
+          <label for="clienteTelefono">Teléfono / WhatsApp <span class="req">*</span></label>
+          <input type="tel" id="clienteTelefono" placeholder="10 dígitos (ej. 9831234567)" autocomplete="tel" maxlength="10" required>
+          <small class="field-error" id="errTelefono" hidden></small>
+        </div>
+
+        <div class="form-field">
+          <label for="clientePoblacion">Municipio / Población o Comunidad <span class="req">*</span></label>
+          <input type="text" id="clientePoblacion" placeholder="Ej. Felipe Carrillo Puerto, Señor, Tihosuco..." required>
+          <small class="field-error" id="errPoblacion" hidden></small>
+        </div>
+
+        <div class="form-field">
+          <label for="clienteDireccion">Dirección (Calle, Cruzamientos o Barrio) <span class="req">*</span></label>
+          <input type="text" id="clienteDireccion" placeholder="Ej. Calle 68 entre 55 y 57, Col. Centro" autocomplete="street-address" required>
+          <small class="field-error" id="errDireccion" hidden></small>
+        </div>
+
+        <div class="form-field">
+          <label for="clienteReferencia">Referencias del domicilio <span class="req">*</span></label>
+          <textarea id="clienteReferencia" rows="2" placeholder="Ej. Casa verde con cancel blanco frente a la tienda de Doña Mary, portón de madera..." required></textarea>
+          <small class="field-error" id="errReferencia" hidden></small>
+        </div>
+
+        <div class="form-field">
+          <label for="clienteNotas">Notas adicionales para el pedido <span class="opt">(Opcional)</span></label>
+          <input type="text" id="clienteNotas" placeholder="Ej. Entregar por la tarde, es para un regalo...">
+        </div>
+      </div>
+
+      <div class="cart-msg" id="cartMsg" style="display:none;">
+        🌸 Al valorar y adquirir estas creaciones, contribuimos a fortalecer la identidad cultural y preservar los saberes de nuestras tejedoras mayas.
+      </div>
+
+      <div class="cart-botones" id="cartBotones">
+        <button class="btn-whatsapp-pedido" id="finalizarBtn" onclick="finalizarWhatsApp()" style="display:none;">
+          <span class="btn-wa-icon">📱</span>
+          <span>Finalizar Pedido por WhatsApp</span>
+        </button>
+        <button class="btn-vaciar-carrito" id="vaciarBtn" onclick="vaciarCarrito()" style="display:none;">
+          🗑️ Vaciar carrito
+        </button>
       </div>
     </div>
 
